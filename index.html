@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AttendPro – Student Attendance System</title>
+<meta name="description" content="AttendPro – Student Attendance System (WD-SCH-003). Frontend-only school attendance: dashboard, students, classes 1-10, daily attendance with remarks, weekly/monthly/yearly reports, history, leaves, analytics and simulated parent notifications." />
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+<link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+<meta name="theme-color" content="#2563eb" />
+<link rel="stylesheet" href="style.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#mainContent">Skip to main content</a>
+
+<!-- ================= AUTH VIEW ================= -->
+<div id="authView" class="auth-wrap">
+  <div class="auth-card" role="dialog" aria-label="Login or register">
+    <div class="auth-head">
+      <div class="brand-mark">A</div>
+      <h1>AttendPro – Student Attendance System</h1>
+      <p>Data Alcott Systems · Task ID: WD-SCH-003 · Student Code: DAS-SCH-003<br />Frontend-only demo · data stays in your browser (localStorage)</p>
+    </div>
+    <div class="auth-tabs" role="tablist">
+      <button class="auth-tab active" id="tabLogin" type="button">Login</button>
+      <button class="auth-tab" id="tabRegister" type="button">Register</button>
+    </div>
+    <div class="auth-body">
+      <form id="loginForm" novalidate>
+        <div class="form-grid">
+          <div class="full">
+            <label class="lbl" for="loginEmail">Email</label>
+            <input class="input" id="loginEmail" type="email" placeholder="admin@attendpro.com" autocomplete="username" required />
+            <div class="field-err" id="loginEmailErr"></div>
+          </div>
+          <div class="full">
+            <label class="lbl" for="loginPassword">Password</label>
+            <input class="input" id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password" required />
+            <div class="field-err" id="loginPassErr"></div>
+          </div>
+        </div>
+        <div class="field-err" id="loginError"></div>
+        <button class="btn primary" style="width:100%;margin-top:6px" type="submit">Login</button>
+      </form>
+
+      <form id="registerForm" class="hidden" novalidate>
+        <div class="form-grid">
+          <div class="full">
+            <label class="lbl" for="regName">Full name</label>
+            <input class="input" id="regName" type="text" placeholder="e.g. Priya Nair" required />
+            <div class="field-err" id="regNameErr"></div>
+          </div>
+          <div class="full">
+            <label class="lbl" for="regEmail">Email</label>
+            <input class="input" id="regEmail" type="email" placeholder="you@school.edu" required />
+            <div class="field-err" id="regEmailErr"></div>
+          </div>
+          <div>
+            <label class="lbl" for="regPassword">Password (min 6 chars)</label>
+            <input class="input" id="regPassword" type="password" placeholder="••••••••" required />
+            <div class="field-err" id="regPassErr"></div>
+          </div>
+          <div>
+            <label class="lbl" for="regRole">Role</label>
+            <select class="input" id="regRole">
+              <option value="teacher">Teacher</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-err" id="regError"></div>
+        <button class="btn primary" style="width:100%;margin-top:6px" type="submit">Create account</button>
+      </form>
+
+      <div class="demo-box">
+        <b>Demo credentials</b> (frontend-only, not secure auth)
+        <div style="margin-top:6px">Admin — <code>admin@attendpro.com</code> · <code>admin123</code></div>
+        <div>Teacher — <code>teacher@attendpro.com</code> · <code>teacher123</code></div>
+        <div class="demo-btns">
+          <button class="btn sm" type="button" data-fill="admin">Fill admin login</button>
+          <button class="btn sm" type="button" data-fill="teacher">Fill teacher login</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= APP VIEW ================= -->
+<div id="appView" class="app hidden">
+  <div class="scrim" id="scrim"></div>
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="brand">
+      <div class="brand-mark sm">A</div>
+      <div><b>AttendPro</b><span>Student Attendance · WD-SCH-003</span></div>
+    </div>
+    <nav class="nav" id="mainNav">
+      <div class="nav-label">Main</div>
+      <button class="nav-btn active" data-page="dashboard" type="button"><span class="ico">▦</span> Dashboard</button>
+      <button class="nav-btn" data-page="students" type="button"><span class="ico">◉</span> Student Management</button>
+      <button class="nav-btn" data-page="classes" type="button"><span class="ico">▤</span> Class Management</button>
+      <button class="nav-btn" data-page="attendance" type="button"><span class="ico">✔</span> Daily Attendance</button>
+      <div class="nav-label">Insights</div>
+      <button class="nav-btn" data-page="reports" type="button"><span class="ico">≣</span> Attendance Report</button>
+      <button class="nav-btn" data-page="history" type="button"><span class="ico">◷</span> Student History</button>
+      <button class="nav-btn" data-page="analytics" type="button"><span class="ico">◫</span> Analytics &amp; Insights</button>
+      <div class="nav-label">Manage</div>
+      <button class="nav-btn" data-page="leaves" type="button"><span class="ico">✉</span> Leave Requests <span class="badge hidden" id="navLeaveBadge">0</span></button>
+      <button class="nav-btn" data-page="notifications" type="button"><span class="ico">♪</span> Notifications <span class="badge hidden" id="navNotifBadge">0</span></button>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="user-chip">
+        <div class="avatar" id="userAvatar">A</div>
+        <div style="min-width:0"><b id="userName">—</b><span id="userEmail">—</span></div>
+        <span class="role-pill" id="userRole">admin</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:9px">
+        <button class="btn sm" id="resetDataBtn" type="button" title="Reset demo data">↺ Reset</button>
+        <button class="btn sm" id="logoutBtn" type="button" style="flex:1">Logout</button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="hamburger" id="hamburger" type="button" aria-label="Open menu">☰</button>
+      <div>
+        <div class="page-title" id="pageTitle">Dashboard</div>
+        <div class="page-sub" id="pageSub">Overview of attendance</div>
+      </div>
+      <div class="topbar-spacer"></div>
+      <button class="icon-btn" id="dataBtn" type="button" title="Data & backup (export/import/reset)">⛁</button>
+      <button class="icon-btn" id="themeBtn" type="button" title="Toggle light / dark mode">◐</button>
+      <div class="dropdown">
+        <button class="icon-btn" id="notifBtn" type="button" title="Notifications">🔔<span class="dot hidden" id="notifCount">0</span></button>
+        <div class="menu" id="notifMenu" aria-label="Recent notifications">
+          <div class="menu-head"><span>Notifications</span><button class="btn sm ghost" id="gotoNotifBtn" type="button">View all</button></div>
+          <div id="notifListMini"></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content" id="mainContent">
+      <!-- DASHBOARD -->
+      <section class="page active" id="page-dashboard">
+        <div class="alert info" id="dDateAlert">Showing data for <b id="dDateLabel">—</b>. Values are calculated from saved attendance records. <span class="pill sim">live data</span></div>
+        <div class="grid stats six" id="dashStats">
+          <div class="stat"><div class="stat-ico blue">◉</div><div><b id="dTotalStudents">0</b><span>Total students</span><br /><small id="dActiveClasses">0 classes</small></div></div>
+          <div class="stat"><div class="stat-ico green">✔</div><div><b id="dPresent">0</b><span>Present</span><br /><small id="dPresentPct">—</small></div></div>
+          <div class="stat"><div class="stat-ico red">✘</div><div><b id="dAbsent">0</b><span>Absent</span><br /><small id="dAbsentPct">—</small></div></div>
+          <div class="stat"><div class="stat-ico amber">◷</div><div><b id="dLate">0</b><span>Late</span><br /><small>needs attention</small></div></div>
+          <div class="stat"><div class="stat-ico cyan">✉</div><div><b id="dLeave">0</b><span>On leave</span><br /><small>approved / marked</small></div></div>
+          <div class="stat"><div class="stat-ico amber">☀</div><div><b id="dHoliday">0</b><span>Holiday</span><br /><small>no class</small></div></div>
+        </div>
+        <div class="grid two" style="margin-top:14px">
+          <div class="card">
+            <div class="card-head"><h3>Attendance trend — last 7 recorded days</h3><span class="pill active" id="dOverallPct">—</span></div>
+            <div class="chart-box"><canvas id="chTrend"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Present vs absent / late / leave / holiday (overall)</h3><button class="btn sm" data-goto="analytics" type="button">Open analytics</button></div>
+            <div class="chart-box"><canvas id="chPresentAbsent"></canvas></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="card-head"><h3>Class-wise attendance (latest recorded day)</h3><button class="btn sm" data-goto="reports" type="button">Weekly / monthly views</button></div>
+          <div id="dClassWise"></div>
+        </div>
+        <div class="grid two" style="margin-top:14px">
+          <div class="card">
+            <div class="card-head"><h3>Recent attendance</h3><button class="btn sm" data-goto="reports" type="button">Full reports</button></div>
+            <div class="table-wrap" style="box-shadow:none"><table>
+              <thead><tr><th>Date</th><th>Student</th><th>Class</th><th>Status</th></tr></thead>
+              <tbody id="recentBody"></tbody>
+            </table></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Low attendance — needs follow-up (&lt; 75%)</h3><button class="btn sm" data-goto="history" type="button">Check history</button></div>
+            <div id="dLowList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STUDENTS -->
+      <section class="page" id="page-students">
+        <div class="toolbar">
+          <div class="search-wrap grow"><input class="input" id="stuSearch" placeholder="Search name, ID, roll, parent…" /></div>
+          <select class="input" id="stuClassFilter" style="max-width:190px"><option value="">All classes</option></select>
+          <select class="input" id="stuStatusFilter" style="max-width:150px">
+            <option value="">All statuses</option><option value="active">Active</option><option value="inactive">Inactive</option>
+          </select>
+          <button class="btn" id="stuExportBtn" type="button">⇩ CSV</button>
+          <button class="btn primary" id="addStudentBtn" type="button">+ Add student</button>
+        </div>
+        <div class="muted small" id="stuCountLabel" style="margin-bottom:9px">—</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>ID</th><th>Name / Roll</th><th>Class</th><th>Parent</th><th>Contact / Address</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="stuTableBody"></tbody>
+        </table></div>
+      </section>
+
+      <!-- CLASSES -->
+      <section class="page" id="page-classes">
+        <div class="toolbar">
+          <div class="muted small">Classes 1–10 with sections A, B, C are pre-loaded as demo data. Custom classes/sections are also supported. Strength = sanctioned seats.</div>
+          <div class="topbar-spacer"></div>
+          <button class="btn primary" id="addClassBtn" type="button">+ New class</button>
+        </div>
+        <div class="grid three" id="classGrid"></div>
+      </section>
+
+      <!-- ATTENDANCE -->
+      <section class="page" id="page-attendance">
+        <div class="card" style="margin-bottom:14px">
+          <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr 1fr">
+            <div><label class="lbl" for="attClass">Class</label><select class="input" id="attClass"></select></div>
+            <div><label class="lbl" for="attSection">Section</label><select class="input" id="attSection"></select></div>
+            <div><label class="lbl" for="attDate">Date</label><input class="input" id="attDate" type="date" /></div>
+            <div><label class="lbl" for="attSearch">Search student</label><input class="input" id="attSearch" placeholder="Type a name…" /></div>
+          </div>
+          <div class="toolbar" style="margin:12px 0 0">
+            <div class="bulk-bar">
+              <button class="btn success sm" id="markAllPresentBtn" type="button">All present</button>
+              <button class="btn sm" id="markAllAbsentBtn" type="button">All absent</button>
+              <button class="btn sm" id="markAllLeaveBtn" type="button">All leave</button>
+              <button class="btn sm" id="markAllHolidayBtn" type="button">Holiday</button>
+              <button class="btn sm" id="attResetBtn" type="button">Reset</button>
+            </div>
+            <div class="topbar-spacer"></div>
+            <span class="muted small" id="attSummary">—</span>
+          </div>
+          <div class="toolbar" style="margin:10px 0 0">
+            <button class="btn" id="attNotifyBtn" type="button" title="Simulated parent alerts for absentees">✉ Notify parents (simulated)</button>
+            <div class="topbar-spacer"></div>
+            <button class="btn primary" id="attSaveBtn" type="button">Save attendance</button>
+          </div>
+          <div class="small" id="attStatusMsg" style="margin-top:8px"></div>
+        </div>
+        <div id="attList"></div>
+      </section>
+
+      <!-- REPORTS -->
+      <section class="page" id="page-reports">
+        <div class="tabs no-print" role="tablist">
+          <button class="tab active" data-rtab="daily" type="button">Daily / weekly / monthly / yearly</button>
+          <button class="tab" data-rtab="summary" type="button">Summary &amp; export</button>
+        </div>
+        <div id="rtab-daily">
+          <div class="toolbar">
+            <select class="input" id="repPeriod" style="max-width:150px">
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+            <input class="input" id="repDate" type="date" style="max-width:170px" />
+            <input class="input hidden" id="repMonth" type="month" style="max-width:170px" />
+            <select class="input hidden" id="repYear" style="max-width:130px"></select>
+            <select class="input" id="repClass" style="max-width:180px"><option value="">All classes</option></select>
+            <select class="input" id="repSection" style="max-width:140px"><option value="">All sections</option></select>
+            <select class="input" id="repStatus" style="max-width:150px">
+              <option value="">All statuses</option><option>Present</option><option>Absent</option><option>Late</option><option>Leave</option><option>Holiday</option>
+            </select>
+            <div class="search-wrap grow"><input class="input" id="repSearch" placeholder="Search student…" /></div>
+            <button class="btn" id="repExportCsvBtn" type="button">⇩ CSV</button>
+            <button class="btn" id="repPrintBtn" type="button">⎙ Print / PDF</button>
+          </div>
+          <div class="muted small" id="repPeriodLabel" style="margin-bottom:9px">—</div>
+          <div class="grid stats five" style="margin-bottom:14px">
+            <div class="stat"><div class="stat-ico green">✔</div><div><b id="repPresent">0</b><span>Present</span></div></div>
+            <div class="stat"><div class="stat-ico red">✘</div><div><b id="repAbsent">0</b><span>Absent</span></div></div>
+            <div class="stat"><div class="stat-ico amber">◷</div><div><b id="repLate">0</b><span>Late</span></div></div>
+            <div class="stat"><div class="stat-ico cyan">✉</div><div><b id="repLeave">0</b><span>Leave</span></div></div>
+            <div class="stat"><div class="stat-ico amber">☀</div><div><b id="repHoliday">0</b><span>Holiday</span></div></div>
+          </div>
+          <div class="muted small" id="repCount" style="margin-bottom:9px">—</div>
+          <div class="table-wrap" id="repPrintArea"><table>
+            <thead><tr><th>Date</th><th>Student</th><th>Class</th><th>Section</th><th>Status</th><th>Remarks</th></tr></thead>
+            <tbody id="repTableBody"></tbody>
+          </table></div>
+        </div>
+        <div id="rtab-summary" class="hidden">
+          <div class="grid two">
+            <div class="card"><div class="card-head"><h3>Class-wise attendance %</h3><button class="btn sm" id="sumExportBtn" type="button">⇩ CSV</button></div><div id="sumClassTable"></div></div>
+            <div class="card"><div class="card-head"><h3>Students below 75% (absenteeism alerts)</h3><button class="btn sm" data-goto="history" type="button">View history</button></div><div id="sumLowTable"></div></div>
+          </div>
+          <div class="grid two" style="margin-top:14px">
+            <div class="card"><div class="card-head"><h3>Monthly overview</h3></div><div id="sumMonthTable"></div></div>
+            <div class="card"><div class="card-head"><h3>Yearly overview</h3><button class="btn sm" id="sumPrintBtn" type="button">⎙ Print summary</button></div><div id="sumYearTable"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- HISTORY -->
+      <section class="page" id="page-history">
+        <div class="toolbar">
+          <select class="input" id="histStudent" style="max-width:320px"></select>
+          <button class="btn" id="histExportBtn" type="button">⇩ CSV</button>
+          <button class="btn" id="histPrintBtn" type="button">⎙ Print</button>
+        </div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-head"><h3 id="histName">Select a student</h3><span class="pill active" id="hPct">—</span></div>
+          <div class="muted small" id="histMeta" style="margin-bottom:10px">—</div>
+          <div class="progress high" id="hBarWrap" style="margin-bottom:12px"><i id="hBar" style="width:0%"></i></div>
+          <div class="grid stats five">
+            <div class="stat"><div class="stat-ico green">✔</div><div><b id="hPresent">0</b><span>Present</span></div></div>
+            <div class="stat"><div class="stat-ico red">✘</div><div><b id="hAbsent">0</b><span>Absent</span></div></div>
+            <div class="stat"><div class="stat-ico amber">◷</div><div><b id="hLate">0</b><span>Late</span></div></div>
+            <div class="stat"><div class="stat-ico cyan">✉</div><div><b id="hLeave">0</b><span>Leave</span></div></div>
+            <div class="stat"><div class="stat-ico amber">☀</div><div><b id="hHoliday">0</b><span>Holiday</span></div></div>
+          </div>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Status</th><th>Class</th><th>Remarks</th></tr></thead>
+          <tbody id="histBody"></tbody>
+        </table></div>
+      </section>
+
+      <!-- LEAVES -->
+      <section class="page" id="page-leaves">
+        <div class="toolbar">
+          <select class="input" id="leaveStatusFilter" style="max-width:180px">
+            <option value="">All statuses</option><option>Pending</option><option>Approved</option><option>Rejected</option>
+          </select>
+          <div class="muted small" id="leaveCount">—</div>
+          <div class="topbar-spacer"></div>
+          <button class="btn primary" id="addLeaveBtn" type="button">+ New leave request</button>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>ID / Student</th><th>From → To</th><th>Reason</th><th>Status</th><th>Submitted</th><th>Actions</th></tr></thead>
+          <tbody id="leaveBody"></tbody>
+        </table></div>
+      </section>
+
+      <!-- ANALYTICS -->
+      <section class="page" id="page-analytics">
+        <div class="toolbar">
+          <label class="lbl" for="anaDays" style="margin:0">Trend range</label>
+          <select class="input" id="anaDays" style="max-width:170px">
+            <option value="7">Last 7 days (daily)</option>
+            <option value="14" selected>Last 14 days (daily)</option>
+            <option value="30">Last 30 days (daily)</option>
+          </select>
+          <div class="muted small" id="anaNote">Daily, weekly, monthly and yearly views below — all computed from saved records.</div>
+        </div>
+        <div class="grid two">
+          <div class="card"><div class="card-head"><h3>Attendance trend (daily)</h3></div><div class="chart-box tall"><canvas id="chTrend2"></canvas></div></div>
+          <div class="card"><div class="card-head"><h3>Present vs absent / late / leave / holiday</h3></div><div class="chart-box tall"><canvas id="chDonut"></canvas></div></div>
+        </div>
+        <div class="grid two" style="margin-top:14px">
+          <div class="card"><div class="card-head"><h3>Class-wise attendance %</h3></div><div class="chart-box"><canvas id="chClassBar"></canvas></div></div>
+          <div class="card"><div class="card-head"><h3>Monthly analytics (present %)</h3></div><div class="chart-box"><canvas id="chMonthly"></canvas></div></div>
+        </div>
+        <div class="grid two" style="margin-top:14px">
+          <div class="card"><div class="card-head"><h3>Weekly report (present % by week)</h3></div><div class="chart-box"><canvas id="chWeekly"></canvas></div></div>
+          <div class="card"><div class="card-head"><h3>Yearly trends (present % by year)</h3></div><div class="chart-box"><canvas id="chYearly"></canvas></div></div>
+        </div>
+      </section>
+
+      <!-- NOTIFICATIONS -->
+      <section class="page" id="page-notifications">
+        <div class="alert info">Parent SMS / email / WhatsApp alerts are <b>simulated</b> in this demo — no real messages are sent. <span class="pill sim">simulated</span></div>
+        <div class="toolbar">
+          <div class="muted small" id="notifFullCount">—</div>
+          <div class="topbar-spacer"></div>
+          <button class="btn sm" id="simulateParentBtn" type="button">✉ Simulate parent alerts</button>
+          <button class="btn sm" id="markAllReadBtn" type="button">Mark all read</button>
+          <button class="btn sm danger" id="clearNotifBtn" type="button">Clear all</button>
+        </div>
+        <div class="card"><div id="notifFullList"></div></div>
+      </section>
+
+      <div class="footer-note">AttendPro – Student Attendance System · Data Alcott Systems · Task WD-SCH-003 · Student Code DAS-SCH-003 · Frontend-only demo — localStorage, simulated notifications, demo auth is not secure.</div>
+    </main>
+  </div>
+</div>
+
+<!-- Generic modal -->
+<div class="overlay" id="modal">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head"><h3 id="modalTitle">—</h3><button class="x-btn" id="modalClose" type="button" aria-label="Close">✕</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
+  </div>
+</div>
+
+<!-- Confirm modal -->
+<div class="overlay" id="confirmModal">
+  <div class="modal" style="max-width:420px" role="alertdialog" aria-modal="true">
+    <div class="modal-head"><h3 id="confirmTitle">Confirm</h3></div>
+    <div class="modal-body"><p id="confirmMsg" style="margin:0">Are you sure?</p></div>
+    <div class="modal-foot">
+      <button class="btn" id="confirmNo" type="button">Cancel</button>
+      <button class="btn danger" id="confirmYes" type="button">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="script.js"></script>
+</body>
+</html>

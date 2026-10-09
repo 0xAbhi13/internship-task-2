@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>AttendPro</title>
+  <!-- Base: primary blue -->
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#2563eb"/>
+  <!-- Subtle bottom depth (flat, no gradient) -->
+  <path d="M2 48 v2 a14 14 0 0 0 14 12 h32 a14 14 0 0 0 14-12 v-2 z" fill="#1e40af" opacity="0.55"/>
+  <!-- Monogram A -->
+  <text x="29" y="44" text-anchor="middle" font-family="Segoe UI, Arial, Helvetica, sans-serif" font-size="32" font-weight="800" fill="#FFFFFF" letter-spacing="0">A</text>
+  <!-- Attendance tick badge -->
+  <circle cx="46" cy="45" r="11" fill="#FFFFFF" stroke="#bfdbfe" stroke-width="2.5"/>
+  <path d="M41.5 45.2 l3.2 3.2 l6-6.8" fill="none" stroke="#1e40af" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
