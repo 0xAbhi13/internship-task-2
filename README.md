@@ -10,19 +10,6 @@
 
 ![typing](https://readme-typing-svg.herokuapp.com?font=Segoe+UI&size=20&duration=2600&pause=900&color=1e40af&center=true&vCenter=true&width=700&lines=Daily+Attendance+in+one+click...;Weekly+%E2%80%A2+Monthly+%E2%80%A2+Yearly+reports...;Present+%E2%80%A2+Absent+%E2%80%A2+Late+%E2%80%A2+Leave+%E2%80%A2+Holiday...;Simulated+parent+alerts+%E2%80%94+no+real+SMS...)
 
-**Data Alcott Systems · Web Development internship task · `WD-SCH-003` · Student Code `DAS-SCH-003`**
-
-`github.com/your-username/student-attendance-system` — repo name stays **`student-attendance-system`** (never `attendpro`)
-
-</div>
-
-> **Animated tour:** open each `<details>` below — they expand step by step like a demo video. For a real recording, capture login → dashboard → attendance → reports → analytics and save it as `assets/demo.gif`, then it will autoplay right here:
-
-<div align="center">
-
-![demo placeholder](https://img.shields.io/badge/demo-assets%2Fdemo.gif_--_add_your_recording-DBEAFE?style=for-the-badge&logo=github&logoColor=1e40af)
-
-</div>
 
 ---
 
